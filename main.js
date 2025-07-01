@@ -88,11 +88,9 @@ addTransaction.addEventListener("click", () => {
   transactions.push(transaction);
   renderTransaction(transaction, transactions.length);
 
-  function calculateBalance() {
-    return transactions.reduce((total, txn) => {
-      return txn.type === "income" ? total + txn.amount : total - txn.amount;
-    }, 0);
-  }
+  const currentBalance = transactions.reduce((total, txn) => {
+    return txn.type === "income" ? total + txn.amount : total - txn.amount;
+  }, 0);
 
   balance.textContent = `$${currentBalance.toFixed(2)}`;
 
