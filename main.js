@@ -56,6 +56,7 @@ function renderTransaction(transaction, index) {
 
     balance.textContent = `$${currentBalance.toFixed(2)}`;
     updateUIState(); // ✅ check and hide clear button if empty
+    saveTransactions();
   });
 
   transactionList.appendChild(li);
@@ -87,9 +88,11 @@ addTransaction.addEventListener("click", () => {
   transactions.push(transaction);
   renderTransaction(transaction, transactions.length);
 
-  const currentBalance = transactions.reduce((total, txn) => {
-    return txn.type === "income" ? total + txn.amount : total - txn.amount;
-  }, 0);
+  function calculateBalance() {
+    return transactions.reduce((total, txn) => {
+      return txn.type === "income" ? total + txn.amount : total - txn.amount;
+    }, 0);
+  }
 
   balance.textContent = `$${currentBalance.toFixed(2)}`;
 
@@ -99,6 +102,7 @@ addTransaction.addEventListener("click", () => {
   category.focus();
 
   updateUIState(); // ✅ show clear button if hidden
+  saveTransactions();
 });
 
 // ✅ Clear Transactions Button Handler
@@ -106,4 +110,32 @@ clearTransactions.addEventListener("click", () => {
   transactions.length = 0; // clear array
   transactionList.innerHTML = ""; // clear UI
   updateUIState(); // hide button, reset balance
+  saveTransactions();
 });
+
+// Save to localStorage helper
+function saveTransactions() {
+  localStorage.setItem("transactions", JSON.stringify(transactions));
+}
+
+// Load from localStorage helper
+function loadTransactions() {
+  const stored = localStorage.getItem("transactions");
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    transactions.push(...parsed);
+
+    transactions.forEach((txn, idx) => {
+      renderTransaction(txn, idx + 1);
+    });
+
+    const currentBalance = transactions.reduce((total, txn) => {
+      return txn.type === "income" ? total + txn.amount : total - txn.amount;
+    }, 0);
+
+    balance.textContent = `$${currentBalance.toFixed(2)}`;
+    updateUIState();
+  }
+}
+
+loadTransactions();
